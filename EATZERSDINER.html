@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eatzers Dine — Small Plates, Big Appetite</title>
+<meta name="description" content="Eatzers Dine is a casual, cosy small-plates spot for lunch, dinner and everything in between. Reserve a table or swing by for takeaway.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- GSAP + ScrollTrigger for high-performance fluid 3D scene animation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  :root{
+    --bg:#14110C;
+    --bg2:#1B1610;
+    --bg3:#221C14;
+    --paper:#F5EDE0;
+    --paper-dim:#C3B59B;
+    --amber:#E09831;
+    --amber-deep:#B57228;
+    --olive:#5C6B3B;
+    --olive-light:#7C8E4F;
+    --rust:#A8402A;
+    --wood:#6B4A34;
+    --line: rgba(245,237,224,0.12);
+    --line-glow: rgba(224,152,49,0.3);
+    --radius-plate: 50%;
+    --maxw: 1200px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+  }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--paper);
+    font-family:'Work Sans', sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #2f271c; border-radius: 5px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--amber-deep); }
+
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0;
+    color:var(--paper);
+    letter-spacing:-0.01em;
+  }
+
+  a{ color:inherit; }
+  img{ max-width:100%; display:block; }
+
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 32px;
+  }
+
+  ::selection{ background:var(--amber); color:var(--bg); }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:3px;
+  }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:100;
+    background:rgba(20,17,12,0.75);
+    backdrop-filter: blur(14px) saturate(160%);
+    border-bottom:1px solid var(--line);
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+  .nav-row{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:16px 32px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-size:1.3rem;
+    font-weight:600;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    position:relative;
+  }
+  .brand-mark{
+    width:28px; height:28px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--amber), var(--amber-deep) 70%);
+    box-shadow: 0 0 12px rgba(224,152,49,0.3), inset 0 0 0 3px rgba(20,17,12,0.4);
+    flex-shrink:0;
+    transition: transform 0.4s var(--ease-out);
+  }
+  .brand:hover .brand-mark{
+    transform: rotate(180deg) scale(1.1);
+  }
+  .nav-links{
+    display:flex;
+    gap:32px;
+    list-style:none;
+    margin:0; padding:0;
+  }
+  .nav-links a{
+    text-decoration:none;
+    font-size:0.95rem;
+    color:var(--paper-dim);
+    transition:color .25 ease, transform .2s ease;
+    padding:4px 0;
+    position:relative;
+    display:inline-block;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    bottom:0; left:0; width:0%; height:2px;
+    background:var(--amber);
+    transition:width 0.25s var(--ease-out);
+  }
+  .nav-links a:hover{ color:var(--paper); }
+  .nav-links a:hover::after{ width:100%; }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px 26px;
+    border-radius:999px;
+    font-size:0.95rem;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid transparent;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition: transform 0.25s var(--ease-out), background .2s ease, border-color .2s ease, color .2s ease, box-shadow .25s ease;
+  }
+  .btn::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform:translateX(-100%);
+    transition:transform 0.6s ease;
+  }
+  .btn:hover::before{ transform:translateX(100%); }
+  .btn:hover{ transform: translateY(-3px); }
+  .btn:active{ transform: translateY(-1px); }
+
+  .btn--primary{
+    background:var(--amber);
+    color:#120E09;
+    box-shadow:0 4px 20px rgba(224,152,49,0.25);
+  }
+  .btn--primary:hover{
+    background:#EFA843;
+    box-shadow:0 8px 25px rgba(224,152,49,0.4);
+  }
+  .btn--ghost{
+    background:rgba(245,237,224,0.03);
+    color:var(--paper);
+    border-color:var(--line);
+  }
+  .btn--ghost:hover{
+    border-color:var(--paper);
+    background:rgba(245,237,224,0.08);
+  }
+  .btn--small{ padding:9px 20px; font-size:0.88rem; }
+
+  /* Mobile menu toggle */
+  .menu-toggle{
+    display:none;
+    background:none;
+    border:none;
+    color:var(--paper);
+    cursor:pointer;
+    padding:8px;
+  }
+
+  @media (max-width:850px){
+    .nav-links{ display:none; }
+    .menu-toggle{ display:block; }
+    .nav-links.is-open{
+      display:flex;
+      flex-direction:column;
+      position:absolute;
+      top:100%; left:0; right:0;
+      background:var(--bg2);
+      padding:24px 32px;
+      border-bottom:1px solid var(--line);
+      box-shadow:0 20px 40px rgba(0,0,0,0.5);
+    }
+  }
+
+  /* ---------- Canvas Ambient Particle Overlay ---------- */
+  #hero-canvas{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:2;
+  }
+
+  /* ---------- Hero / 3D scroll scene ---------- */
+  .hero-scroll-space{
+    position:relative;
+    height:260vh;
+  }
+  .hero-pin{
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse 65% 50% at 50% 55%, rgba(226,153,47,0.18), transparent 70%),
+      radial-gradient(ellipse 120% 90% at 50% 110%, var(--bg3), var(--bg) 65%);
+  }
+  .scene{
+    position:relative;
+    width:100%;
+    height:100%;
+    perspective:1200px;
+  }
+  .hero-copy{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:0 24px;
+    z-index:5;
+    pointer-events:none;
+  }
+  .hero-copy *{ pointer-events:auto; }
+  .hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 16px;
+    border-radius:999px;
+    background:rgba(226,153,47,0.12);
+    border:1px solid rgba(226,153,47,0.3);
+    color:var(--amber);
+    font-size:0.85rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:20px;
+    backdrop-filter: blur(8px);
+  }
+  .hero-badge-dot{
+    width:6px; height:6px; border-radius:50%; background:var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.4; transform:scale(0.8); } }
+
+  .hero-copy h1{
+    font-size:clamp(3.2rem, 9.5vw, 6.8rem);
+    line-height:0.95;
+    text-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  }
+  .hero-copy p{
+    max-width:540px;
+    color:var(--paper-dim);
+    font-size:clamp(1rem, 1.6vw, 1.2rem);
+    margin:22px 0 36px;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+  }
+  .hero-cta{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+  .scroll-hint{
+    position:absolute;
+    bottom:34px; left:50%;
+    transform:translateX(-50%);
+    font-size:0.8rem;
+    color:var(--paper-dim);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    z-index:5;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+  }
+  .scroll-hint span{
+    width:2px; height:36px;
+    background:linear-gradient(var(--amber), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+  @keyframes scrollLine { 0%{ transform:scaleY(0); transform-origin:top; } 50%{ transform:scaleY(1); transform-origin:top; } 50.1%{ transform:scaleY(1); transform-origin:bottom; } 100%{ transform:scaleY(0); transform-origin:bottom; } }
+
+  /* Interactive Plates with Depth & Dynamic Lighting */
+  .plate{
+    position:absolute;
+    top:50%; left:50%;
+    transform-style:preserve-3d;
+    cursor:pointer;
+    transition: filter 0.3s ease;
+  }
+  .plate-face{
+    position:relative;
+    border-radius:50%;
+    background: radial-gradient(circle at 38% 32%, #FFFDF8, var(--paper) 55%, #CBD1BF 100%);
+    box-shadow:
+      0 2px 2px rgba(255,255,255,0.8) inset,
+      0 -4px 10px rgba(0,0,0,0.15) inset,
+      0 35px 70px -15px rgba(0,0,0,0.75);
+    transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  }
+  .plate:hover .plate-face{
+    box-shadow:
+      0 2px 2px rgba(255,255,255,0.9) inset,
+      0 45px 85px -10px rgba(0,0,0,0.85),
+      0 0 30px rgba(226,153,47,0.3);
+  }
+  .plate-food{
+    position:absolute;
+    border-radius:50%;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  }
+
+  /* Food details */
+  .plate--1 .plate-face{ width:240px; height:240px; }
+  .plate--1 .plate-food{
+    width:130px; height:130px; top:23%; left:23%;
+    background:radial-gradient(circle at 35% 30%, var(--olive-light), var(--olive) 75%);
+    border: 3px solid rgba(255,255,255,0.1);
+  }
+  .plate--2 .plate-face{ width:200px; height:200px; }
+  .plate--2 .plate-food{
+    width:105px; height:80px; top:30%; left:23%;
+    border-radius:45% 55% 45% 55%;
+    background:radial-gradient(circle at 35% 30%, var(--rust), #7E2E1F 80%);
+  }
+  .plate--3 .plate-face{ width:180px; height:180px; }
+  .plate--3 .plate-food{
+    width:95px; height:95px; top:23%; left:23%;
+    background:radial-gradient(circle at 35% 30%, var(--amber), var(--amber-deep) 80%);
+  }
+  .plate--4 .plate-face{ width:160px; height:160px; }
+  .plate--4 .plate-food{
+    width:76px; height:76px; top:26%; left:26%;
+    background:radial-gradient(circle at 35% 30%, #E7D6A8, var(--wood) 85%);
+  }
+
+  /* Floating plate tooltip tag */
+  .plate-tag{
+    position:absolute;
+    bottom:-12px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(0.9);
+    background:rgba(20,17,12,0.9);
+    border:1px solid var(--amber);
+    color:var(--paper);
+    padding:4px 12px;
+    border-radius:999px;
+    font-size:0.75rem;
+    font-weight:600;
+    white-space:nowrap;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.3s ease, transform 0.3s var(--ease-out);
+    box-shadow:0 8px 20px rgba(0,0,0,0.5);
+  }
+  .plate:hover .plate-tag{
+    opacity:1;
+    transform:translateX(-50%) translateY(0) scale(1);
+  }
+
+  /* ---------- Facts strip ---------- */
+  .facts{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    background:var(--bg2);
+    position:relative;
+    z-index:10;
+  }
+  .facts-row{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    max-width:var(--maxw);
+    margin:0 auto;
+  }
+  .fact{
+    padding:30px 28px;
+    border-left:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:16px;
+    transition: background 0.3s ease;
+  }
+  .fact:hover{ background:rgba(245,237,224,0.02); }
+  .fact:first-child{ border-left:none; }
+  .fact-icon{
+    width:48px; height:48px;
+    border-radius:12px;
+    background:rgba(226,153,47,0.1);
+    border:1px solid rgba(226,153,47,0.2);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--amber);
+    flex-shrink:0;
+    transition: transform 0.3s var(--ease-out), background 0.3s ease;
+  }
+  .fact:hover .fact-icon{
+    transform: scale(1.1) rotate(5deg);
+    background:var(--amber);
+    color:#120E09;
+  }
+  .fact-title{ font-weight:600; font-size:1rem; }
+  .fact-sub{ font-size:0.84rem; color:var(--paper-dim); }
+  @media (max-width:900px){
+    .facts-row{ grid-template-columns:repeat(2,1fr); }
+    .fact:nth-child(3){ border-left:none; }
+  }
+  @media (max-width:560px){
+    .facts-row{ grid-template-columns:1fr; }
+    .fact{ border-left:none !important; border-top:1px solid var(--line); }
+    .fact:first-child{ border-top:none; }
+  }
+
+  /* ---------- Section shell ---------- */
+  section.block{ padding:120px 0; position:relative; z-index:10; }
+  .kicker-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:24px;
+    margin-bottom:56px;
+    flex-wrap:wrap;
+  }
+  .kicker-row h2{ font-size:clamp(2.2rem, 4.5vw, 3rem); }
+  .kicker-row p{ color:var(--paper-dim); max-width:400px; font-size:1rem; }
+
+  /* Fade-in scroll animations */
+  .reveal{
+    opacity:0;
+    transform:translateY(35px);
+    transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+  }
+  .reveal.is-revealed{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* ---------- About ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap:64px;
+    align-items:center;
+  }
+  .about-copy p{ color:var(--paper-dim); font-size:1.08rem; margin:0 0 20px; max-width:54ch; line-height:1.65; }
+  .about-copy p:last-child{ margin-bottom:0; }
+  .about-copy strong{ color:var(--paper); font-weight:600; }
+  .table-scene{
+    position:relative;
+    aspect-ratio:4/5;
+    border-radius:32px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(226,153,47,0.22), transparent 60%),
+      linear-gradient(160deg, var(--bg3), var(--bg2));
+    border:1px solid var(--line);
+    overflow:hidden;
+    box-shadow:0 30px 60px rgba(0,0,0,0.5);
+  }
+  .table-scene .plate-face{ position:absolute; }
+  .ts-1{ width:56%; aspect-ratio:1; top:14%; left:20%; }
+  .ts-1 .plate-food{ position:absolute; width:55%; height:55%; top:22%; left:22%; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--rust), #7E2E1F 85%); }
+  .ts-2{ width:34%; aspect-ratio:1; bottom:12%; right:10%; }
+  .ts-2 .plate-food{ position:absolute; width:55%; height:55%; top:22%; left:22%; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--olive-light), var(--olive) 85%); }
+  .ts-3{ width:28%; aspect-ratio:1; bottom:32%; left:8%; }
+  .ts-3 .plate-food{ position:absolute; width:55%; height:55%; top:22%; left:22%; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--amber), var(--amber-deep) 85%); }
+
+  @media (max-width:900px){
+    .about-grid{ grid-template-columns:1fr; }
+    .table-scene{ order:-1; max-width:440px; margin:0 auto; }
+  }
+
+  /* ---------- Menu ---------- */
+  .menu-tabs{
+    display:flex;
+    gap:12px;
+    margin-bottom:40px;
+    flex-wrap:wrap;
+  }
+  .menu-tab{
+    padding:10px 22px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:rgba(245,237,224,0.02);
+    color:var(--paper-dim);
+    font-family:inherit;
+    font-size:0.92rem;
+    font-weight:500;
+    cursor:pointer;
+    transition:all .25s var(--ease-out);
+  }
+  .menu-tab.is-active, .menu-tab:hover{
+    border-color:var(--amber);
+    color:var(--paper);
+    background:rgba(226,153,47,0.15);
+    box-shadow: 0 4px 15px rgba(226,153,47,0.15);
+  }
+  .menu-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:20px;
+  }
+  .dish{
+    background:var(--bg2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:32px 28px;
+    display:none;
+    flex-direction:column;
+    justify-content:space-between;
+    position:relative;
+    overflow:hidden;
+    transition: transform 0.3s var(--ease-out), border-color 0.3s ease, box-shadow 0.3s ease;
+    cursor:pointer;
+  }
+  .dish.is-visible{ display:flex; }
+  .dish:hover{
+    transform: translateY(-6px);
+    border-color:var(--line-glow);
+    box-shadow:0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(226,153,47,0.1);
+  }
+  .dish-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .dish-plate{
+    width:52px; height:52px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #FFFDF8, var(--paper) 60%, #D8CBA9 100%);
+    position:relative;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    transition: transform 0.4s var(--ease-out);
+  }
+  .dish:hover .dish-plate{
+    transform: scale(1.1) rotate(15deg);
+  }
+  .dish-plate::after{
+    content:'';
+    position:absolute;
+    width:55%; height:55%;
+    top:22%; left:22%;
+    border-radius:50%;
+    background:var(--dish-color, var(--amber));
+  }
+  .dish-add-btn{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:rgba(245,237,224,0.05);
+    border:1px solid var(--line);
+    color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .dish:hover .dish-add-btn{
+    background:var(--amber);
+    color:#120E09;
+    border-color:var(--amber);
+    transform:scale(1.1);
+  }
+  .dish h3{ font-size:1.2rem; font-weight:500; margin-bottom:8px; line-height:1.3; }
+  .dish p{ color:var(--paper-dim); font-size:0.92rem; margin:0 0 20px; line-height:1.5; flex-grow:1; }
+  .dish-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-top:16px;
+    border-top:1px solid rgba(245,237,224,0.06);
+  }
+  .dish-price{ font-family:'Fraunces', serif; font-weight:600; color:var(--amber); font-size:1.15rem; }
+  .dish-tag{ font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--paper-dim); opacity:0.8; }
+
+  @media (max-width:900px){ .menu-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px){ .menu-grid{ grid-template-columns:1fr; } }
+
+  .menu-note{
+    margin-top:32px;
+    font-size:0.9rem;
+    color:var(--paper-dim);
+    text-align:center;
+  }
+
+  /* Sticky Order Tray Floating Bar */
+  .order-bar{
+    position:fixed;
+    bottom:28px; right:28px;
+    z-index:90;
+    background:rgba(27,22,16,0.92);
+    border:1px solid var(--amber);
+    backdrop-filter:blur(12px);
+    padding:14px 24px;
+    border-radius:999px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(226,153,47,0.25);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    transform:translateY(120px);
+    opacity:0;
+    transition: transform 0.4s var(--ease-out), opacity 0.4s ease;
+  }
+  .order-bar.is-active{
+    transform:translateY(0);
+    opacity:1;
+  }
+  .order-bar-count{
+    background:var(--amber);
+    color:#120E09;
+    font-weight:700;
+    width:26px; height:26px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem;
+  }
+
+  /* ---------- Atmosphere ---------- */
+  .atmos-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:20px;
+  }
+  .atmos-card{
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:32px 26px;
+    background:var(--bg2);
+    min-height:220px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition: transform 0.3s var(--ease-out), border-color 0.3s ease, background 0.3s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .atmos-card::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(226,153,47,0.1), transparent 60%);
+    opacity:0;
+    transition:opacity 0.3s ease;
+  }
+  .atmos-card:hover::before{ opacity:1; }
+  .atmos-card:hover{
+    transform:translateY(-5px);
+    border-color:var(--line-glow);
+    background:var(--bg3);
+  }
+  .atmos-icon-wrap{
+    width:52px; height:52px;
+    border-radius:16px;
+    background:rgba(92,107,59,0.15);
+    border:1px solid rgba(124,142,79,0.3);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--olive-light);
+  }
+  .atmos-card h3{ font-size:1.1rem; font-weight:500; margin-top:20px; }
+  .atmos-card p{ color:var(--paper-dim); font-size:0.9rem; margin:8px 0 0; line-height:1.5; }
+  @media (max-width:900px){ .atmos-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .atmos-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- Reviews ---------- */
+  .reviews-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:28px;
+  }
+  .review{
+    padding:36px 32px;
+    border-radius:24px;
+    background:linear-gradient(165deg, var(--bg3), var(--bg2));
+    border:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition: transform 0.3s var(--ease-out), border-color 0.3s ease;
+  }
+  .review:hover{
+    transform:translateY(-6px);
+    border-color:rgba(226,153,47,0.3);
+  }
+  .review-stars{ color:var(--amber); letter-spacing:4px; font-size:1rem; margin-bottom:18px; }
+  .review p.quote{ font-size:1.05rem; color:var(--paper); margin:0 0 24px; line-height:1.6; font-style:italic; }
+  .review .who{ font-size:0.88rem; color:var(--paper-dim); font-style:normal; font-weight:500; }
+  @media (max-width:900px){ .reviews-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- Visit ---------- */
+  .visit{
+    background:var(--bg2);
+    border-top:1px solid var(--line);
+  }
+  .visit-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:64px;
+  }
+  .visit-list{ list-style:none; margin:0; padding:0; }
+  .visit-list li{
+    display:flex;
+    justify-content:space-between;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+    font-size:1rem;
+    gap:20px;
+  }
+  .visit-list li span:first-child{ color:var(--paper-dim); }
+  .visit-list li:last-child{ border-bottom:none; }
+  .parking-note{
+    margin-top:28px;
+    padding:22px;
+    border-radius:18px;
+    background:rgba(92,107,59,0.12);
+    border:1px solid rgba(124,142,79,0.25);
+    font-size:0.92rem;
+    color:var(--paper-dim);
+    line-height:1.5;
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .parking-note svg{ color:var(--olive-light); flex-shrink:0; margin-top:2px; }
+  .visit-cta{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    justify-content:center;
+  }
+  .visit-cta h2{ font-size:clamp(2rem, 3.6vw, 2.6rem); }
+  .visit-cta p{ color:var(--paper-dim); max-width:44ch; font-size:1.05rem; }
+  .visit-cta .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  @media (max-width:900px){ .visit-grid{ grid-template-columns:1fr; } .visit-cta{ order:-1; } }
+
+  /* ---------- Modal / Reservation System ---------- */
+  .modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(10,8,5,0.82);
+    backdrop-filter:blur(16px);
+    z-index:200;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-backdrop.is-active{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .modal{
+    background:var(--bg2);
+    border:1px solid var(--line-glow);
+    border-radius:28px;
+    padding:40px;
+    max-width:540px;
+    width:100%;
+    position:relative;
+    box-shadow:0 30px 80px rgba(0,0,0,0.8);
+    transform:scale(0.92) translateY(20px);
+    transition: transform 0.3s var(--ease-out);
+  }
+  .modal-backdrop.is-active .modal{
+    transform:scale(1) translateY(0);
+  }
+  .modal-close{
+    position:absolute;
+    top:20px; right:20px;
+    background:none; border:none;
+    color:var(--paper-dim);
+    cursor:pointer;
+    padding:8px;
+    border-radius:50%;
+    transition: color 0.2s, background 0.2s;
+  }
+  .modal-close:hover{ color:var(--paper); background:rgba(255,255,255,0.05); }
+  .modal h3{ font-size:1.8rem; margin-bottom:10px; }
+  .modal p{ color:var(--paper-dim); margin-bottom:24px; font-size:0.95rem; }
+
+  .form-group{ margin-bottom:20px; }
+  .form-group label{ display:block; font-size:0.85rem; font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em; color:var(--paper-dim); }
+  .form-control{
+    width:100%;
+    background:var(--bg3);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    color:var(--paper);
+    font-family:inherit;
+    font-size:0.95rem;
+    outline:none;
+    transition: border-color 0.2s ease;
+  }
+  .form-control:focus{ border-color:var(--amber); }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* Toast Notification */
+  .toast-container{
+    position:fixed;
+    top:24px; right:24px;
+    z-index:300;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    pointer-events:none;
+  }
+  .toast{
+    background:var(--bg2);
+    border:1px solid var(--amber);
+    color:var(--paper);
+    padding:14px 22px;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:0.92rem;
+    font-weight:500;
+    pointer-events:auto;
+    animation: toastIn 0.3s var(--ease-out) forwards;
+  }
+  @keyframes toastIn { from{ opacity:0; transform:translateX(50px); } to{ opacity:1; transform:translateX(0); } }
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding:60px 0 40px;
+    position:relative;
+    z-index:10;
+  }
+  .footer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:24px;
+    padding-bottom:32px;
+    border-bottom:1px solid var(--line);
+  }
+  .footer-links{ display:flex; gap:28px; list-style:none; margin:0; padding:0; }
+  .footer-links a{ text-decoration:none; color:var(--paper-dim); font-size:0.92rem; transition:color 0.2s; }
+  .footer-links a:hover{ color:var(--paper); }
+  .footer-bottom{
+    padding-top:28px;
+    display:flex;
+    justify-content:space-between;
+    color:var(--paper-dim);
+    font-size:0.85rem;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Canvas ambient embers & warm restaurant steam -->
+<canvas id="hero-canvas"></canvas>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Order Bar Float -->
+<div class="order-bar" id="orderBar">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span class="order-bar-count" id="orderCount">0</span>
+    <span style="font-size:0.92rem; font-weight:500;">Plates Selected</span>
+  </div>
+  <button class="btn btn--primary btn--small" onclick="openReservationModal('Order Summary')">View Table Selection</button>
+</div>
+
+<!-- Modal: Table Reservation Flow -->
+<div class="modal-backdrop" id="reserveModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeReservationModal()" aria-label="Close modal">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3 id="modalTitle">Reserve a Table</h3>
+    <p>Join us at Eatzers Dine. Small plates, low light, easy vibes.</p>
+    
+    <form id="reserveForm" onsubmit="handleReserveSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="resDate">Date</label>
+          <input type="date" id="resDate" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="resTime">Time</label>
+          <select id="resTime" class="form-control" required>
+            <option value="12:30">12:30 PM (Lunch)</option>
+            <option value="14:00">02:00 PM (Lunch)</option>
+            <option value="18:00" selected>06:00 PM (Dinner)</option>
+            <option value="20:00">08:00 PM (Dinner)</option>
+            <option value="21:30">09:30 PM (Late)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="resGuests">Guests</label>
+          <select id="resGuests" class="form-control">
+            <option value="1">1 Person (Counter)</option>
+            <option value="2" selected>2 People</option>
+            <option value="4">4 People</option>
+            <option value="6">6+ Group Feast</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="resName">Your Name</label>
+          <input type="text" id="resName" class="form-control" placeholder="e.g. Alex" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="resNotes">Special Requests / Dietary Notes</label>
+        <input type="text" id="resNotes" class="form-control" placeholder="Allergies, birthday celebrations, preferred seat...">
+      </div>
+      <button type="submit" class="btn btn--primary" style="width:100%; margin-top:10px;">Confirm Reservation</button>
+    </form>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-row">
+    <a href="#top" class="brand"><span class="brand-mark"></span>Eatzers Dine</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#atmosphere">Atmosphere</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#visit">Visit</a></li>
+    </ul>
+    <button class="btn btn--primary btn--small" onclick="openReservationModal()">Reserve a table</button>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div id="top"></div>
+
+<!-- ================= HERO / 3D SCROLL SCENE ================= -->
+<div class="hero-scroll-space">
+  <div class="hero-pin">
+    <div class="scene" id="scene">
+
+      <div class="plate plate--1" id="plateA">
+        <div class="plate-face"><div class="plate-food"></div></div>
+        <div class="plate-tag">Charred Corn &amp; Chilli</div>
+      </div>
+      <div class="plate plate--2" id="plateB">
+        <div class="plate-face"><div class="plate-food"></div></div>
+        <div class="plate-tag">Crispy Halloumi</div>
+      </div>
+      <div class="plate plate--3" id="plateC">
+        <div class="plate-face"><div class="plate-food"></div></div>
+        <div class="plate-tag">Aubergine Dip</div>
+      </div>
+      <div class="plate plate--4" id="plateD">
+        <div class="plate-face"><div class="plate-food"></div></div>
+        <div class="plate-tag">Blistered Padron Peppers</div>
+      </div>
+
+      <div class="hero-copy" id="heroCopy">
+        <div class="hero-badge"><span class="hero-badge-dot"></span> Kitchen open daily</div>
+        <h1>Eatzers Dine</h1>
+        <p>A casual, low-lit spot for small plates and quick bites — built for long lunches, easy dinners, and tables that started as two and turned into six.</p>
+        <div class="hero-cta">
+          <button onclick="openReservationModal()" class="btn btn--primary">Reserve a table</button>
+          <a href="#menu" class="btn btn--ghost">See the menu</a>
+        </div>
+      </div>
+
+      <div class="scroll-hint" id="scrollHint"><span></span>Scroll to serve</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= FACTS STRIP ================= -->
+<section class="facts">
+  <div class="facts-row">
+    <div class="fact">
+      <div class="fact-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v5h5"/></svg>
+      </div>
+      <div><div class="fact-title">Reservations open</div><div class="fact-sub">Solo, dates, or groups</div></div>
+    </div>
+    <div class="fact">
+      <div class="fact-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      </div>
+      <div><div class="fact-title">Takeaway available</div><div class="fact-sub">Order to go anytime</div></div>
+    </div>
+    <div class="fact">
+      <div class="fact-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>
+      </div>
+      <div><div class="fact-title">Good for kids</div><div class="fact-sub">Family tables welcome</div></div>
+    </div>
+    <div class="fact">
+      <div class="fact-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/></svg>
+      </div>
+      <div><div class="fact-title">Free parking</div><div class="fact-sub">Lot &amp; street parking</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="block" id="about">
+  <div class="wrap about-grid">
+    <div class="about-copy reveal">
+      <h2 style="font-size:clamp(2.2rem,4.5vw,3rem); margin-bottom:26px;">Small plates. No pretense.</h2>
+      <p>Eatzers Dine started from a simple idea: dinner doesn't need three courses and a dress code to feel like an occasion. <strong>We built a small-plates menu</strong> so you can order two dishes or ten, share everything, and leave when you're actually full — not when the menu decided you should be.</p>
+      <p>The room is <strong>casual, cosy, and a little bit trendy</strong> — the kind of place regulars bring first dates and first-time visitors bring their whole itinerary. Come for a quick bite between meetings, or camp out with friends for the evening. Both are the point.</p>
+      <p>We seat solo diners at the counter, groups at the long table, and everyone in between wherever there's room.</p>
+    </div>
+    <div class="table-scene reveal">
+      <div class="plate-face ts-1"><div class="plate-food"></div></div>
+      <div class="plate-face ts-2"><div class="plate-food"></div></div>
+      <div class="plate-face ts-3"><div class="plate-food"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MENU ================= -->
+<section class="block" id="menu">
+  <div class="wrap">
+    <div class="kicker-row reveal">
+      <h2>What's on the table</h2>
+      <p>A working sample of the menu — built for sharing, priced for coming back often.</p>
+    </div>
+
+    <div class="menu-tabs reveal">
+      <button class="menu-tab is-active" data-tab="small">Small Plates</button>
+      <button class="menu-tab" data-tab="quick">Quick Bites</button>
+      <button class="menu-tab" data-tab="board">For the Table</button>
+    </div>
+
+    <div class="menu-grid" id="menuGrid">
+      <!-- small plates -->
+      <div class="dish is-visible reveal" data-cat="small" data-title="Charred Corn, Chilli Butter">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--olive)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Charred Corn, Chilli Butter</h3>
+          <p>Sweetcorn blistered over open flame, brown butter, lime, chilli flake.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 28</div>
+          <span class="dish-tag">Vegetarian</span>
+        </div>
+      </div>
+
+      <div class="dish is-visible reveal" data-cat="small" data-title="Crispy Halloumi, Hot Honey">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--amber)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Crispy Halloumi, Hot Honey</h3>
+          <p>Pan-seared halloumi, chilli-infused honey, toasted sesame.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 32</div>
+          <span class="dish-tag">Favorite</span>
+        </div>
+      </div>
+
+      <div class="dish is-visible reveal" data-cat="small" data-title="Smoky Aubergine Dip">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--rust)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Smoky Aubergine Dip</h3>
+          <p>Fire-roasted aubergine, tahini, pomegranate, warm flatbread.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 26</div>
+          <span class="dish-tag">Vegan</span>
+        </div>
+      </div>
+
+      <div class="dish is-visible reveal" data-cat="small" data-title="Blistered Padron Peppers">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--wood)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Blistered Padron Peppers</h3>
+          <p>Flash-fried, flaky sea salt, one in ten bites back.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 22</div>
+          <span class="dish-tag">Gluten-Free</span>
+        </div>
+      </div>
+
+      <div class="dish is-visible reveal" data-cat="small" data-title="Whipped Feta, Roast Pepper">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--olive)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Whipped Feta, Roast Pepper</h3>
+          <p>Whipped feta, roasted red pepper, olive oil, crusty bread.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 24</div>
+          <span class="dish-tag">Vegetarian</span>
+        </div>
+      </div>
+
+      <div class="dish is-visible reveal" data-cat="small" data-title="Korean-Style Cauliflower">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--amber)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Korean-Style Cauliflower</h3>
+          <p>Crisp fried cauliflower, gochujang glaze, spring onion.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 30</div>
+          <span class="dish-tag">Spicy</span>
+        </div>
+      </div>
+
+      <!-- quick bites -->
+      <div class="dish reveal" data-cat="quick" data-title="Steak Sandwich">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--rust)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Steak Sandwich</h3>
+          <p>Grilled sirloin, pickled onion, mustard mayo, toasted sourdough.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 45</div>
+          <span class="dish-tag">Hearty</span>
+        </div>
+      </div>
+
+      <div class="dish reveal" data-cat="quick" data-title="Fish Finger Bao">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--wood)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Fish Finger Bao</h3>
+          <p>Crispy fish, tartare slaw, steamed bao bun.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 38</div>
+          <span class="dish-tag">Popular</span>
+        </div>
+      </div>
+
+      <div class="dish reveal" data-cat="quick" data-title="Loaded Fries, Truffle Mayo">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--amber)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Loaded Fries, Truffle Mayo</h3>
+          <p>Twice-cooked fries, parmesan, truffle mayo, chives.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 30</div>
+          <span class="dish-tag">To Share</span>
+        </div>
+      </div>
+
+      <!-- for the table -->
+      <div class="dish reveal" data-cat="board" data-title="The Eatzers Board">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--olive)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>The Eatzers Board</h3>
+          <p>Five small plates chosen by the kitchen — built for 3–4 people.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 140</div>
+          <span class="dish-tag">3–4 People</span>
+        </div>
+      </div>
+
+      <div class="dish reveal" data-cat="board" data-title="Group Feast">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--rust)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Group Feast</h3>
+          <p>Eight plates, family style, made for the whole table to share.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 240</div>
+          <span class="dish-tag">Large Groups</span>
+        </div>
+      </div>
+
+      <div class="dish reveal" data-cat="board" data-title="Tourist's Sampler">
+        <div class="dish-header">
+          <div class="dish-plate" style="--dish-color:var(--amber)"></div>
+          <button class="dish-add-btn" title="Add plate">+</button>
+        </div>
+        <div>
+          <h3>Tourist's Sampler</h3>
+          <p>A first-timer's tour through the menu's most-ordered dishes.</p>
+        </div>
+        <div class="dish-footer">
+          <div class="dish-price">GH₵ 120</div>
+          <span class="dish-tag">Best Variety</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="menu-note">Click any dish to add to your table selection list.</p>
+  </div>
+</section>
+
+<!-- ================= ATMOSPHERE ================= -->
+<section class="block" id="atmosphere">
+  <div class="wrap">
+    <div class="kicker-row reveal">
+      <h2>The room</h2>
+      <p>Casual enough for a Tuesday, dressed-up enough for a Friday.</p>
+    </div>
+    <div class="atmos-grid">
+      <div class="atmos-card reveal">
+        <div class="atmos-icon-wrap">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21v-7a8 8 0 0 1 16 0v7"/><path d="M4 21h16"/></svg>
+        </div>
+        <div>
+          <h3>Cosy, low light</h3>
+          <p>Warm lighting and close tables make it easy to linger over one more plate.</p>
+        </div>
+      </div>
+      <div class="atmos-card reveal">
+        <div class="atmos-icon-wrap">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M2 21c0-3.5 3-6 7-6M15 15c4 0 7 2.5 7 6"/></svg>
+        </div>
+        <div>
+          <h3>Built for groups</h3>
+          <p>Long tables and shareable plates make it a natural spot to bring the whole crew.</p>
+        </div>
+      </div>
+      <div class="atmos-card reveal">
+        <div class="atmos-icon-wrap">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c4-3 7-6.5 7-10a7 7 0 0 0-14 0c0 3.5 3 7 7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
+        </div>
+        <div>
+          <h3>Easy to find</h3>
+          <p>A regular stop for visitors exploring the neighbourhood — ask us for local tips too.</p>
+        </div>
+      </div>
+      <div class="atmos-card reveal">
+        <div class="atmos-icon-wrap">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg>
+        </div>
+        <div>
+          <h3>Table service</h3>
+          <p>Sit down, settle in, and let us bring the plates out as they're ready.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REVIEWS ================= -->
+<section class="block" id="reviews">
+  <div class="wrap">
+    <div class="kicker-row reveal">
+      <h2>What people are saying</h2>
+      <p>A few notes from recent tables.</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="review reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="quote">“We came for a quick lunch and ended up ordering half the small plates menu. Nothing felt like a filler dish.”</p>
+        <div class="who">— Ama, regular lunch table</div>
+      </div>
+      <div class="review reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="quote">“Brought eight of us in with zero notice and they still turned it into a proper sit-down dinner. Great for groups.”</p>
+        <div class="who">— Kwesi, birthday dinner</div>
+      </div>
+      <div class="review reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="quote">“Stopped in on our first night in the city and the staff basically planned the rest of our trip for us.”</p>
+        <div class="who">— Priya, visiting from out of town</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VISIT ================= -->
+<section class="block visit" id="visit">
+  <div class="wrap visit-grid">
+    <div class="visit-cta reveal">
+      <h2>Come hungry, stay a while</h2>
+      <p>Tables go fast on weekends — reserve ahead, or walk in and grab a seat at the counter.</p>
+      <div class="btn-row">
+        <button onclick="openReservationModal()" class="btn btn--primary">Reserve online</button>
+        <a href="tel:+233000000000" class="btn btn--ghost">Call us directly</a>
+      </div>
+    </div>
+    <div class="reveal">
+      <ul class="visit-list">
+        <li><span>Lunch</span><span>Daily, from midday</span></li>
+        <li><span>Dinner</span><span>Daily, from 5pm</span></li>
+        <li><span>Takeaway</span><span>Available all service</span></li>
+        <li><span>Reservations</span><span>Recommended for groups</span></li>
+        <li><span>Toilet on site</span><span>Yes</span></li>
+        <li><span>Good for kids</span><span>Yes</span></li>
+      </ul>
+      <div class="parking-note">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+        <div>
+          <strong>Parking Info:</strong> Free parking lot on site, plus free street parking nearby. No need to circle the block.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-row">
+      <a href="#top" class="brand"><span class="brand-mark"></span>Eatzers Dine</a>
+      <ul class="footer-links">
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#atmosphere">Atmosphere</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#visit">Visit</a></li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Eatzers Dine. Casual dining &amp; small plates spot.</span>
+      <span>Low-lit vibes, big appetites.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Dynamic Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Mobile Navigation Drawer Toggle
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('is-open');
+  });
+
+  // Toast Notification System
+  function showToast(message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span>${message}</span>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(50px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Interactive Selected Plates Tray Engine
+  let selectedPlates = [];
+  const orderBar = document.getElementById('orderBar');
+  const orderCount = document.getElementById('orderCount');
+
+  document.querySelectorAll('.dish').forEach(dish => {
+    dish.addEventListener('click', () => {
+      const title = dish.dataset.title;
+      selectedPlates.push(title);
+      orderCount.textContent = selectedPlates.length;
+      orderBar.classList.add('is-active');
+      showToast(`Added "${title}" to your selection`);
+    });
+  });
+
+  // Modal Flow Engine
+  const modal = document.getElementById('reserveModal');
+  const modalTitle = document.getElementById('modalTitle');
+
+  function openReservationModal(customTitle) {
+    if(customTitle) {
+      modalTitle.textContent = customTitle;
+    } else {
+      modalTitle.textContent = "Reserve a Table";
+    }
+    
+    // Set default date picker to today
+    const dateInput = document.getElementById('resDate');
+    if(!dateInput.value) {
+      dateInput.value = new Date().toISOString().split('T')[0];
+    }
+    
+    modal.classList.add('is-active');
+  }
+
+  function closeReservationModal() {
+    modal.classList.remove('is-active');
+  }
+
+  function handleReserveSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('resName').value;
+    const guests = document.getElementById('resGuests').value;
+    const time = document.getElementById('resTime').value;
+    
+    closeReservationModal();
+    showToast(`Table confirmed for ${name} (${guests} guests at ${time})!`);
+  }
+
+  // Close modal when clicking backdrop
+  modal.addEventListener('click', (e) => {
+    if(e.target === modal) closeReservationModal();
+  });
+
+  // ---------- Menu Category Tabs System ----------
+  const tabs = document.querySelectorAll('.menu-tab');
+  const dishes = document.querySelectorAll('.dish');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      const cat = tab.dataset.tab;
+      
+      dishes.forEach(d => {
+        if(d.dataset.cat === cat) {
+          d.style.display = 'flex';
+          setTimeout(() => d.classList.add('is-visible'), 20);
+        } else {
+          d.classList.remove('is-visible');
+          d.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // ---------- Atmosphere Cards Spotlight Cursor Tracking ----------
+  document.querySelectorAll('.atmos-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mouse-x', `${x}%`);
+      card.style.setProperty('--mouse-y', `${y}%`);
+    });
+  });
+
+  // ---------- Scroll Reveal Animations ----------
+  const revealElements = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) {
+        entry.target.classList.add('is-revealed');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  revealElements.forEach(el => observer.observe(el));
+
+  // ---------- Ambient Particle Canvas Engine ----------
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = canvas.height + Math.random() * 100;
+      this.size = Math.random() * 2.5 + 0.5;
+      this.speedY = Math.random() * 0.8 + 0.3;
+      this.speedX = (Math.random() - 0.5) * 0.4;
+      this.opacity = Math.random() * 0.5 + 0.1;
+      this.color = Math.random() > 0.5 ? '224, 152, 49' : '168, 64, 42';
+    }
+    update() {
+      this.y -= this.speedY;
+      this.x += this.speedX;
+      if (this.y < -10) this.reset();
+    }
+    draw() {
+      ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  for(let i = 0; i < 45; i++) {
+    particles.push(new Particle());
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+
+  // ---------- GSAP & ScrollTrigger 3D Scene Animation ----------
+  gsap.registerPlugin(ScrollTrigger);
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if(!reduceMotion) {
+    const heroTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".hero-scroll-space",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1.2
+      }
+    });
+
+    // Animate Plates into position and flight path
+    heroTl.to("#plateA", {
+      x: -260, y: -90, z: 120, rotationX: -12, rotationY: -30, scale: 1.08,
+      ease: "power1.inOut"
+    }, 0)
+    .to("#plateB", {
+      x: 240, y: 70, z: 80, rotationX: 14, rotationY: 28, scale: 1.02,
+      ease: "power1.inOut"
+    }, 0)
+    .to("#plateC", {
+      x: 280, y: -160, z: 40, rotationX: -18, rotationY: 20, scale: 0.9,
+      ease: "power1.inOut"
+    }, 0)
+    .to("#plateD", {
+      x: -280, y: 150, z: 20, rotationX: 20, rotationY: -22, scale: 0.9,
+      ease: "power1.inOut"
+    }, 0)
+    .to("#heroCopy", {
+      opacity: 0.15, y: -30, ease: "power1.out"
+    }, 0)
+    .to("#scrollHint", {
+      opacity: 0, ease: "power1.out"
+    }, 0);
+
+    // Dynamic Mouse Tilt Effect on Hover over Plates
+    document.querySelectorAll('.plate').forEach(plate => {
+      plate.addEventListener('mousemove', (e) => {
+        const rect = plate.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const rotateX = (e.clientY - centerY) / 8;
+        const rotateY = (centerX - e.clientX) / 8;
+
+        gsap.to(plate, {
+          rotationX: rotateX,
+          rotationY: rotateY,
+          duration: 0.4,
+          ease: "power2.out"
+        });
+      });
+
+      plate.addEventListener('mouseleave', () => {
+        gsap.to(plate, {
+          rotationX: 0,
+          rotationY: 0,
+          duration: 0.8,
+          ease: "elastic.out(1, 0.4)"
+        });
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
